@@ -1,8 +1,7 @@
-__author__ = 'Chris1'
+__author__ = 'ChrisLyver'
 from secrets import Secrets
 from datetime import datetime
-
-# Login to NU Group Fitness and hand-off the state of the browser
+import time
 
 
 class DailyBookings():
@@ -16,54 +15,26 @@ class DailyBookings():
     def __init__(self, driver):
         self.browser = driver
 
-    def monday(self):
+    def book_a_class(self, class_to_book):
         """
-        Book the 7:05pm 'crank it up' class
+        Find and click the link specified by 'class_to_book'.  Confirm to finalize.
+        :param class_to_book: The XPATH to the class link
         """
 
-        crank_it_up = self.browser.find_element_by_xpath('//*[@id="scheduleDisplay"]/table/tbody/tr[36]/td[3]/a')
-        crank_it_up.click()
+        time.sleep(3)
+        link_to_book = self.browser.find_element_by_xpath(class_to_book)
+        link_to_book.click()
 
         self.confirm()
-
-    def tuesday(self):
-        """
-        Book the 8:15pm 'cycle' class
-        """
-
-        cycle_class = self.browser.find_element_by_xpath('//*[@id="scheduleDisplay"]/table/tbody/tr[19]/td[3]/a')
-        cycle_class.click()
-
-        self.confirm()
-
-    def wednesday(self):
-        """
-        Book the 7:!0 'cycle' class
-        """
-
-        cycle_class = self.browser.find_element_by_xpath('//*[@id="scheduleDisplay"]/table/tbody/tr[37]/td[3]/a[1]')
-        cycle_class.click()
-
-        self.confirm()
-
-    def thursday(self):
-        pass
-
-    def friday(self):
-        pass
-
-    def saturday(self):
-        pass
-
-    def sunday(self):
-        pass
 
     def confirm(self):
         """
         We've made our selection.  Confirm and quit the driver.
         """
-        add_apointment = self.browser.find_element_by_xpath('//*[@id="submitButton"]')
-        add_apointment.click()
+
+        time.sleep(3)
+        add_appointment = self.browser.find_element_by_xpath('//*[@id="submitButton"]')
+        add_appointment.click()
 
         self.browser.quit()
 
@@ -78,32 +49,31 @@ def get_day_of_week():
     return this_day
 
 
-def determine_which_day_to_book(current_day):
+def determine_which_class_to_book(current_day):
     """
     Booking begins 24 hours in advance. Ex. For Wednesday classes, we book Tuesday at 12am.
     :param current_day: The current day of the week as an int, per datetime convention in where Monday is 0.
-    :return: The day we would like to book, as a string.
+    :return: The XPATH to the link of the class we would like to book.
     """
 
-    days_of_the_week = {0: "monday",
-                        1: "tuesday",
-                        2: "wednesday",
-                        3: "thursday",
-                        4: "friday",
-                        5: "saturday",
-                        6: "sunday"}
-    return days_of_the_week.get(current_day + 1)
+    # A dict whose key (day of the week) corresponds to the XPATH to the class I want to take that day:
+    classes_by_day = {0: '//*[@id="scheduleDisplay"]/table/tbody/tr[36]/td[3]/a',
+                      1: '//*[@id="scheduleDisplay"]/table/tbody/tr[19]/td[3]/a',
+                      2: '//*[@id="scheduleDisplay"]/table/tbody/tr[37]/td[3]/a[1]',
+                      3: "TODO",
+                      4: "TODO",
+                      5: "TODO",
+                      6: "TODO"}
+    return classes_by_day.get(current_day + 1)
 
 if __name__ == "__main__":
     # Get the current day
     today = get_day_of_week()
-    # Return tomorrow's name as a string
-    to_book = determine_which_day_to_book(today)
+    # Return tomorrow's desired class, based on today's day
+    desired_class = determine_which_class_to_book(today)
     # Start up our session
     my_credentials = Secrets()
     browser = my_credentials.web_login()
+    # Instantiate, and book the desired class
     bookings = DailyBookings(browser)
-    # Get the appropriate function to call
-    reserve = getattr(bookings, to_book)
-    # Reserve our spot in the class and get buff
-    reserve()
+    bookings.book_a_class(desired_class)

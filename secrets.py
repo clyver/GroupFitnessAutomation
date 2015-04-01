@@ -1,5 +1,6 @@
-__author__ = 'Chris1'
+__author__ = 'ChrisLyver'
 from selenium import webdriver
+import time
 
 
 class Secrets():
@@ -20,15 +21,19 @@ class Secrets():
         browser = webdriver.Firefox()
         browser.get('https://nucampusrec.cshape.net/memberLogin.aspx')
 
+        time.sleep(7)
         username = browser.find_element_by_name('txtUser')
         username.send_keys(self.login)
 
+        time.sleep(3)
         password = browser.find_element_by_name('txtPassword')
         password.send_keys(self.password)
 
+        time.sleep(3)
         login = browser.find_element_by_name('signInButton')
         login.click()
 
+        time.sleep(3)
         register_for_class = browser.find_element_by_xpath('//*[@id="regClassesLink"]')
         register_for_class.click()
 
